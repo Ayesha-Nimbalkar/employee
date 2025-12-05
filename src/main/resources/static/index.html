@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Management System - Advanced</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="animated-title">
+                <span class="gradient-text">👥 Employee Management System</span>
+            </h1>
+            <p class="subtitle">Advanced Employee Management Platform</p>
+            <div class="quotes-container">
+                <p class="quote-text" id="quote-text">Streamline your workforce management with powerful tools</p>
+            </div>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('dashboard')">📊 Dashboard</button>
+            <button class="tab-btn" onclick="showTab('view')">👥 View Employees</button>
+            <button class="tab-btn" onclick="showTab('add')">➕ Add Employee</button>
+            <button class="tab-btn" onclick="showTab('update')">✏️ Update Employee</button>
+            <button class="tab-btn" onclick="showTab('bulk')">⚡ Bulk Operations</button>
+            <button class="tab-btn" onclick="showTab('analytics')">📈 Analytics</button>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard-tab" class="tab-content active">
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-content">
+                        <h3 id="total-employees">0</h3>
+                        <p>Total Employees</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-content">
+                        <h3 id="total-salary">$0</h3>
+                        <p>Total Salary</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📈</div>
+                    <div class="stat-content">
+                        <h3 id="avg-salary">$0</h3>
+                        <p>Average Salary</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⭐</div>
+                    <div class="stat-content">
+                        <h3 id="employee-types">0</h3>
+                        <p>Employee Types</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card dashboard-card">
+                <div class="card-header">
+                    <h2>📋 Recent Employees</h2>
+                    <button class="btn btn-primary" onclick="loadDashboardData()">🔄 Refresh</button>
+                </div>
+                <div id="dashboard-employees" class="employees-list"></div>
+            </div>
+        </div>
+
+        <!-- View Employees Tab -->
+        <div id="view-tab" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2>All Employees</h2>
+                    <div class="action-buttons">
+                        <button class="btn btn-success" onclick="exportToCSV()">📥 Export CSV</button>
+                        <button class="btn btn-primary" onclick="loadAllEmployees()">🔄 Refresh</button>
+                    </div>
+                </div>
+                
+                <!-- Advanced Search and Filters -->
+                <div class="filters-section">
+                    <div class="filter-group">
+                        <input type="text" id="search-name" placeholder="Search by name..." class="input filter-input" onkeyup="applyFilters()">
+                        <input type="text" id="search-email" placeholder="Search by email..." class="input filter-input" onkeyup="applyFilters()">
+                        <select id="filter-type" class="input filter-input" onchange="applyFilters()">
+                            <option value="">All Types</option>
+                        </select>
+                        <select id="sort-by" class="input filter-input" onchange="applyFilters()">
+                            <option value="id">Sort by ID</option>
+                            <option value="name">Sort by Name</option>
+                            <option value="salary">Sort by Salary</option>
+                            <option value="type">Sort by Type</option>
+                        </select>
+                        <select id="sort-order" class="input filter-input" onchange="applyFilters()">
+                            <option value="asc">Ascending</option>
+                            <option value="desc">Descending</option>
+                        </select>
+                        <button class="btn btn-warning" onclick="clearFilters()">Clear Filters</button>
+                    </div>
+                </div>
+
+                <!-- Pagination Controls -->
+                <div class="pagination-controls">
+                    <div class="pagination-info">
+                        <span>Showing <span id="showing-from">0</span> - <span id="showing-to">0</span> of <span id="total-count">0</span> employees</span>
+                    </div>
+                    <div class="pagination-buttons">
+                        <button class="btn btn-primary" id="prev-page" onclick="changePage(-1)">← Previous</button>
+                        <span class="page-info">Page <span id="current-page">1</span> of <span id="total-pages">1</span></span>
+                        <button class="btn btn-primary" id="next-page" onclick="changePage(1)">Next →</button>
+                    </div>
+                </div>
+
+                <div id="employees-list" class="employees-list"></div>
+            </div>
+        </div>
+
+        <!-- Add Employee Tab -->
+        <div id="add-tab" class="tab-content">
+            <div class="card">
+                <h2>Add New Employee</h2>
+                <form id="add-form" onsubmit="addEmployee(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>ID <span class="required">*</span></label>
+                            <input type="number" id="add-id" required class="input" placeholder="Employee ID" min="1">
+                            <small class="form-hint">Unique employee identifier</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Name <span class="required">*</span></label>
+                            <input type="text" id="add-name" required class="input" placeholder="Full Name" pattern="[A-Za-z\s]{2,50}">
+                            <small class="form-hint">2-50 characters, letters only</small>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Salary <span class="required">*</span></label>
+                            <input type="number" id="add-salary" required class="input" placeholder="Salary" min="0" step="100">
+                            <small class="form-hint">Minimum: $0</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Phone <span class="required">*</span></label>
+                            <input type="tel" id="add-phone" required class="input" placeholder="Phone Number" pattern="[0-9]{10}">
+                            <small class="form-hint">10 digits</small>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Email <span class="required">*</span></label>
+                            <input type="email" id="add-email" required class="input" placeholder="Email Address">
+                            <small class="form-hint">Valid email format</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Type <span class="required">*</span></label>
+                            <select id="add-type" required class="input">
+                                <option value="">Select Type</option>
+                                <option value="Full-time">Full-time</option>
+                                <option value="Part-time">Part-time</option>
+                                <option value="Contract">Contract</option>
+                                <option value="Intern">Intern</option>
+                                <option value="Manager">Manager</option>
+                            </select>
+                            <small class="form-hint">Employee type</small>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success">➕ Add Employee</button>
+                </form>
+                <div id="add-message" class="message"></div>
+            </div>
+        </div>
+
+        <!-- Update Employee Tab -->
+        <div id="update-tab" class="tab-content">
+            <div class="card">
+                <h2>Update Employee</h2>
+                <form id="update-form" onsubmit="updateEmployee(event)">
+                    <div class="form-group">
+                        <label>Employee ID <span class="required">*</span></label>
+                        <input type="number" id="update-id" required class="input" placeholder="Employee ID">
+                    </div>
+                    <div class="form-group">
+                        <label>Field to Update <span class="required">*</span></label>
+                        <select id="update-field" required class="input" onchange="updateFieldType()">
+                            <option value="">Select Field</option>
+                            <option value="name">Name</option>
+                            <option value="salary">Salary</option>
+                            <option value="phone">Phone</option>
+                            <option value="email">Email</option>
+                            <option value="type">Type</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="update-value-group">
+                        <label>New Value <span class="required">*</span></label>
+                        <input type="text" id="update-value" required class="input" placeholder="Enter new value">
+                        <select id="update-value-select" class="input" style="display:none;">
+                            <option value="">Select Type</option>
+                            <option value="Full-time">Full-time</option>
+                            <option value="Part-time">Part-time</option>
+                            <option value="Contract">Contract</option>
+                            <option value="Intern">Intern</option>
+                            <option value="Manager">Manager</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>New Value <span class="required">*</span></label>
+                        <input type="text" id="update-value" required class="input" placeholder="Enter new value">
+                    </div>
+                    <button type="submit" class="btn btn-warning">✏️ Update Employee</button>
+                </form>
+                <div id="update-message" class="message"></div>
+            </div>
+        </div>
+
+        <!-- Bulk Operations Tab -->
+        <div id="bulk-tab" class="tab-content">
+            <div class="card">
+                <h2>⚡ Bulk Operations</h2>
+                <div class="bulk-section">
+                    <h3>Bulk Delete</h3>
+                    <p>Enter employee IDs separated by commas to delete multiple employees</p>
+                    <form id="bulk-delete-form" onsubmit="bulkDelete(event)">
+                        <div class="form-group">
+                            <label>Employee IDs <span class="required">*</span></label>
+                            <input type="text" id="bulk-delete-ids" required class="input" placeholder="e.g., 1,2,3,4">
+                            <small class="form-hint">Comma-separated IDs</small>
+                        </div>
+                        <button type="submit" class="btn btn-danger">🗑️ Delete Selected</button>
+                    </form>
+                    <div id="bulk-delete-message" class="message"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Tab -->
+        <div id="analytics-tab" class="tab-content">
+            <div class="card">
+                <h2>📈 Analytics & Reports</h2>
+                <div class="analytics-section">
+                    <div class="chart-container">
+                        <canvas id="salaryChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="typeChart"></canvas>
+                    </div>
+                </div>
+                <div class="analytics-actions">
+                    <button class="btn btn-success" onclick="generateReport()">📊 Generate Report</button>
+                    <button class="btn btn-primary" onclick="loadAnalytics()">🔄 Refresh Analytics</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
